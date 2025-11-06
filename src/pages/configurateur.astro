@@ -1,0 +1,573 @@
+---
+import Layout from '../layouts/Layout.astro'
+import pb from '../utils/pb'
+import Feuille from '../assets/feuille.svg'
+import Dimension from '../assets/dimension.svg'
+
+// Chargement des couleurs et matériaux depuis Pocketbase
+const couleurs = await pb.collection('couleur').getFullList()
+// Récupère la collection 'materiaux' qui contient au moins { nom, type }
+// Champs supposés : 'nom' (string) et 'type' (un des 'monture'|'branches'|'verre')
+const materiaux = await pb.collection('materiaux').getFullList()
+---
+<Layout title="Configurateur TaVue">
+<div class="bg-base-200 min-h-screen flex flex-col">
+  <!-- Contenu principal -->
+  <main class="flex flex-1 items-center justify-center gap-72 py-16">
+
+    <!-- Aperçu à gauche -->
+    <div class="flex flex-col items-start gap-4 min-w-[720px]">
+      <div class="bg-base-100 rounded-box shadow-lg flex flex-col items-center p-12 w-full">
+        <div id="lunettes-svg" class="w-[660px] h-[300px] mb-6">
+        <!-- SVG inline, monture et branches avec id -->
+  <svg id="svg-code" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 507.87 195.75" class="w-[660px] h-[300px]">
+          <defs>
+            <style>
+              {`.cls-1{fill:#fff;stroke:#1e1e1c;stroke-width:0.5px;}.cls-1,.cls-3,.cls-4{stroke-miterlimit:10;}.cls-2{fill:#727070;}.cls-3,.cls-4{fill:none;stroke:#1d1d1b;}.cls-3{opacity:0.3;}`}
+            </style>
+          </defs>
+          <g id="Calque_2" data-name="Calque 2">
+            <g id="Calque_1-2" data-name="Calque 1">
+              <g id="branches">
+                <path class="cls-1" d="M7.27,54s61.8-7,68.79-11,14-10,24.42-12,80.74-14,80.74-14,9-2.49,21.93,7,41.37,39.87,49.34,38.88S264.45,51,262,46,211,5,202.65,2.63c-11.94-3.35-27.41-3-46.36,0S10.75,31.86,10.75,31.86-5.69,39.52,7.26,54Z"/>
+                <path class="cls-2" d="M257,48.48s-.38,7.7-5,7c-6.22-1-44.86-42.36-57.82-40.37,0,0,10.68,3.39,23.12,14.58C225.45,37,260.4,77.05,257,48.48Z"/>
+                <path class="cls-1" d="M340.32,84.66,453.7,47.36s27.71-7,31.75-5,22.17,38.29,22.17,42.33-3,17.54-7.05,18.64c-2.91.8-6.67.14-8.56-5.27-1.77-5-8.57-39.73-15.62-39.41s-63.49,20-63.49,20-16.63,8.07-23.68,14.12-40.31,14.11-40.31,14.11-12.09-9.58-8.56-22.18Z"/>
+                <path class="cls-2" d="M348.52,85.22S476.59,41.15,483.58,45.16c0,0-22.79,3.12-52.29,14.88s-82.77,27.58-82.77,27.58Z"/>
+                <path class="cls-2" d="M478.78,57.62A7.42,7.42,0,0,1,485,61.94c2.15,4.32,12.24,30.94,12.24,30.94s1,6.24,6.47-3.35c0,0-3.85,12-6.71,8.5s-12.24-33-12.24-33-3.59-8.44-6-7.44Z"/>
+              </g>
+              <g id="monture">
+                <path class="cls-1" d="M353.5,86.11c-.3-4.27-12-6.54-15.92-8s-19.66,2.46-19.66,2.46c-15.24-3.93-68.31-11.31-98.78-11.31S178.35,83.49,174.91,83s-21.63-1-29.49-2.45S139,62.85,96.27,47.39,10.75,31.84,10.75,31.84C-6,37.67,2.29,55,2.29,55l2.56,7.95c5.41,2.54,3.94,13.18,5.9,28.9s9.34,35.88,17.7,48.17,39.81,26,55.53,26.53,29.49-2.45,39.81-19.17,21.14-46.2,21.14-46.2l12.77,2a11.39,11.39,0,0,1,6.7,3.87c3.06,3.48,5.55,10,9.52,21.68,9.47,27.67,31.46,49.15,31.46,49.15s7,9.3,41.87,15.85a115.29,115.29,0,0,0,53.48-3.08c22.19-9,27.08-56.3,27.08-56.3s2.29-16.66,9.78-20.85c9.23-5.19,10.36-5.56,15.92-6.66,4.52-.89.3-16.45,0-20.72Zm-244,63.25c-11.79,6.39-40.29,8.84-58-4.91s-26-37.84-28.5-66.34,8.89-31.6,8.89-31.6,18.63-.84,42.71,5.05S125.27,74.16,125.77,85s-4.42,58-16.21,64.38Zm193.14,30.47c-11.31,5.41-26.89,5.9-40,4.91s-47-2-59.29-39.32c0,0-3.44-17.7-6.39-21.63s-11.79-18.13-11.79-23.08c0-10.31,8.95-16.24,8.95-16.24a48.76,48.76,0,0,1,23.48-6.39c13.27,0,81.08,3.45,90.43,16.22s8.84,27.52,10.31,39.32-4.42,40.79-15.72,46.2Z"/>
+              </g>
+              <g id="verres" class="fill-[#E8F4F8] opacity-75">
+                <path class="cls-3" d="M16.65,63.64c-1.1,7.58.5,46.85,14.33,69.27s46.38,26.73,51.8,26.68S106,160.87,113.42,148c6.23-10.75,16.5-54.45,11.43-66.43C117,63,74.25,51.47,74.25,51.47S40.63,44.63,31.9,45.89c0,0-12.48-1.21-15.24,17.74Z"/>
+                <path class="cls-4" d="M16.25,63.64c-1.1,7.58.5,46.85,14.32,69.27S77,159.64,82.38,159.59,105.56,160.87,113,148c6.23-10.75,16.49-54.45,11.42-66.43C116.6,63,73.85,51.47,73.85,51.47S40.23,44.63,31.5,45.89c0,0-12.49-1.21-15.24,17.74Z"/>
+                <path class="cls-3" d="M180.7,100.8s-1.37-12,24.5-20.9c14.73-5.09,75.71,4,75.71,4S304.82,89,308.1,94.31,320,115.9,318.48,141.86c-1.43,25.31-9.15,33.56-15.79,38,0,0-8.89,6.17-26.72,7.42-33.37,2.36-46.35-1.43-57.84-9.68-37.42-26.87-37.42-76.76-37.42-76.76Z"/>
+                <path class="cls-4" d="M180.7,100.8s-1.37-12,24.5-20.9c14.73-5.09,75.71,4,75.71,4S304.82,89,308.1,94.31,320,115.9,318.48,141.86c-1.43,25.31-9.15,33.56-15.79,38,0,0-8.89,6.17-26.72,7.42-33.37,2.36-46.35-1.43-57.84-9.68-37.42-26.87-37.42-76.76-37.42-76.76Z"/>
+              </g>
+            </g>
+          </g>
+        </svg>
+        </div>
+      </div>
+
+      <div class="w-full max-w-[660px] ml-8">
+        <label class="block mb-0 text-base-content text-sm font-medium ml-2">Nom de votre création</label>
+        <input id="svg-name" class="input input-bordered input-primary w-3/4 max-w-[420px] mt-2 ml-2" placeholder="Ma création TaVue" />
+      </div>
+    </div>
+
+    <!-- Card configurateur à droite -->
+    <div class="bg-base-100 rounded-box shadow-lg p-6 min-w-[520px] max-w-[520px] flex flex-col gap-6">
+      <div class="mb-4 w-full">
+        <div class="w-full bg-base-200 rounded-full p-1 flex items-center justify-around">
+          <a id="tab-couleurs" href="/configurateur?tab=couleurs" class="px-5 py-2 rounded-full text-base-content/70 transition">Couleurs</a>
+          <a id="tab-materiaux" href="/configurateur?tab=materiaux" class="px-5 py-2 rounded-full text-base-content/70 transition">Matériaux</a>
+          <a id="tab-dimensions" href="/configurateur?tab=dimensions" class="px-5 py-2 rounded-full text-base-content/70 transition">Dimensions</a>
+        </div>
+      </div>
+
+      <div id="panel-couleurs">
+        <div>
+          <div class="font-semibold mb-3">Couleur de la monture</div>
+          <div id="colors-monture" class="grid grid-cols-3 gap-4">
+            {couleurs.map(c => (
+              <button
+                type="button"
+                data-color={c.code_hex}
+                style={`--swatch:${c.code_hex}`}
+                class="bg-white rounded-xl border border-base-300 p-3 flex flex-col items-center gap-2 hover:shadow-md transition"
+                aria-label={c.nom_couleur}
+              >
+                <span class="w-10 h-10 rounded-full mb-0 shadow-inner bg-(--swatch) border-2 border-[rgba(0,0,0,0.08)]"></span>
+                <span class="text-sm text-base-content/80 mt-1">{c.nom_couleur}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <div class="font-semibold mb-3">Couleur des branches</div>
+          <div id="colors-branches" class="grid grid-cols-3 gap-4">
+            {couleurs.map(c => (
+              <button
+                type="button"
+                data-color={c.code_hex}
+                style={`--swatch:${c.code_hex}`}
+                class="bg-white rounded-xl border border-base-300 p-3 flex flex-col items-center gap-2 hover:shadow-md transition"
+                aria-label={c.nom_couleur}
+              >
+                <span class="w-10 h-10 rounded-full mb-0 shadow-inner bg-(--swatch) border-2 border-[rgba(0,0,0,0.08)]"></span>
+                <span class="text-sm text-base-content/80 mt-1">{c.nom_couleur}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+  <div id="panel-materiaux" class="hidden">
+        <div class="space-y-4">
+          <div>
+              <div class="font-semibold mb-2">Matériau de la monture</div>
+              <select class="select select-bordered w-full">
+                {materiaux.filter(m => ((m.type || m.type_materiau || '').toLowerCase() === 'monture')).map(m => (
+                  <option value={m.libelle || m.nom || m.name || m.nom_materiau}>{m.libelle || m.nom || m.name || m.nom_materiau}</option>
+                ))}
+              </select>
+          </div>
+
+          <div>
+            <div class="font-semibold mb-2">Matériau des branches</div>
+            <select class="select select-bordered w-full">
+              {materiaux.filter(m => ((m.type || m.type_materiau || '').toLowerCase() === 'branches')).map(m => (
+                <option value={m.libelle || m.nom || m.name || m.nom_materiau}>{m.libelle || m.nom || m.name || m.nom_materiau}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <div class="font-semibold mb-2">Type de verres</div>
+            <select class="select select-bordered w-full">
+              {materiaux.filter(m => ((m.type || m.type_materiau || '').toLowerCase() === 'verre' || (m.type || '').toLowerCase() === 'verres')).map(m => (
+                <option value={m.libelle || m.nom || m.name || m.nom_materiau}>{m.libelle || m.nom || m.name || m.nom_materiau}</option>
+              ))}
+            </select>
+          </div>
+
+          <div class="p-2 rounded-lg border-[1.5px] border-[#31765F] border-opacity-30 bg-[#ECFDF5]">
+            <div class="flex items-start gap-4">
+              <div class="shrink-0">
+                <Feuille/>
+              </div>
+              <div>
+                <div class="font-medium text-[#31765F]">Engagement éco-responsable</div>
+                <p class="text-xs text-[#31765F]/80 mt-1">Tous nos matériaux sont certifiés durables et issus de sources responsables.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-dimensions" class="hidden">
+        <div class="space-y-6">
+          <div>
+            <div class="font-semibold mb-3">Largeur du pont</div>
+            <div id="grid-pont" class="grid grid-cols-3 gap-4">
+              <button class="rounded-xl border p-4 text-center">14mm<br/><span class="text-xs text-base-content/60">Étroit</span></button>
+              <button class="rounded-xl border p-4 text-center bg-[#ECFDF5] border-primary">18mm<br/><span class="text-xs text-base-content/60">Standard</span></button>
+              <button class="rounded-xl border p-4 text-center">22mm<br/><span class="text-xs text-base-content/60">Large</span></button>
+            </div>
+          </div>
+
+          <div>
+            <div class="font-semibold mb-3">Taille des verres</div>
+            <div id="grid-verres" class="grid grid-cols-3 gap-4">
+              <button class="rounded-xl border p-4 text-center">48mm<br/><span class="text-xs text-base-content/60">Petit</span></button>
+              <button class="rounded-xl border p-4 text-center bg-[#ECFDF5] border-primary">52mm<br/><span class="text-xs text-base-content/60">Moyen</span></button>
+              <button class="rounded-xl border p-4 text-center">56mm<br/><span class="text-xs text-base-content/60">Grand</span></button>
+            </div>
+          </div>
+
+          <div>
+            <div class="font-semibold mb-3">Largeur horizontale du verre</div>
+                <div class="p-4 rounded-lg border-[1.5px] border-[#2563EB] bg-[#EFF6FF]">
+                  <div class="flex items-start gap-3">
+                    <Dimension/>
+                    <div class="flex-1">
+                      <div class="font-medium text-[#2563EB]">Guide des mesures</div>
+                      <p class="text-xs text-[#2563EB]/90 mt-1">Les dimensions sont adaptées pour un ajustement optimal</p>
+
+                      <div class="mt-3 text-sm text-[#2563EB]/90">
+                        <div class="flex justify-between">
+                          <span class="">Largeur totale estimée:</span>
+                          <span id="estimated-width" class="font-medium">122 mm</span>
+                        </div>
+                        <div class="flex justify-between mt-1">
+                          <span class="">Taille recommandée:</span>
+                          <span id="recommended-size" class="font-medium">Moyen</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <button class="w-full bg-[#31765F] hover:bg-[#2b6b57] text-white py-3 rounded-md flex items-center justify-center gap-3 shadow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" viewBox="0 0 16 16" fill="none" aria-hidden>
+            <g clip-path="url(#clip0)">
+              <path d="M5.33334 14.6667C5.70153 14.6667 6.00001 14.3682 6.00001 14C6.00001 13.6319 5.70153 13.3334 5.33334 13.3334C4.96515 13.3334 4.66667 13.6319 4.66667 14C4.66667 14.3682 4.96515 14.6667 5.33334 14.6667Z" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12.6667 14.6667C13.0349 14.6667 13.3333 14.3682 13.3333 14C13.3333 13.6319 13.0349 13.3334 12.6667 13.3334C12.2985 13.3334 12 13.6319 12 14C12 14.3682 12.2985 14.6667 12.6667 14.6667Z" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M1.3667 1.3667H2.70003L4.47337 9.6467C4.53842 9.94994 4.70715 10.221 4.95051 10.4133C5.19387 10.6055 5.49664 10.7069 5.8067 10.7H12.3267C12.6301 10.6995 12.9244 10.5956 13.1607 10.4053C13.3971 10.215 13.5615 9.94972 13.6267 9.65336L14.7267 4.70003H3.41337" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <defs>
+              <clipPath id="clip0"><rect width="16" height="16" fill="white"/></clipPath>
+            </defs>
+          </svg>
+          <span class="font-medium">Ajouter au panier 249,99 €</span>
+        </button>
+      </div>
+
+      <div>
+        <button id="save-button" class="w-full btn btn-ghost border rounded-md py-2 flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 7l9 6 9-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sauvegarder
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// @ts-nocheck
+const codeBlock = document.getElementById("svg-code");
+const nameInput = document.getElementById("svg-name");
+const saveButton = document.getElementById("save-button");
+
+async function saveSVG() {
+      const nom = nameInput?.value.trim();
+      // prefer taking the current DOM SVG (outerHTML) so we capture attribute changes
+      const svgEl = document.getElementById('svg-code');
+      const svgCode = svgEl ? svgEl.outerHTML : (codeBlock?.textContent || '').trim();
+
+      if (!nom || !svgCode) {
+        alert("Veuillez entrer un nom et générer un SVG avant d’enregistrer.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/js/saveSVG", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ nom, code_svg: svgCode}),
+        });
+
+        if (!res.ok) throw new Error("Erreur lors de l’enregistrement");
+
+        alert("✅ SVG enregistré avec succès !");
+        nameInput.value = "";
+      } catch (err) {
+        console.error(err);
+        alert("❌ Échec de l’enregistrement du SVG.");
+      }
+    }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const svgDoc = document.querySelector('#lunettes-svg svg')
+  const montureGroup = svgDoc ? svgDoc.querySelector('#monture') : null
+  const branchesGroup = svgDoc ? svgDoc.querySelector('#branches') : null
+  // Les verres NE CHANGENT PAS : aucune action sur le groupe #verres
+
+  const colorsMonture = document.getElementById('colors-monture')
+  if (colorsMonture) {
+    colorsMonture.addEventListener('click', e => {
+      const target = e.target
+      const btn = target instanceof Element ? target.closest('button[data-color]') : null
+      if (!btn) return
+      const color = btn.getAttribute('data-color')
+      if (!color) return
+      if (montureGroup) {
+        montureGroup.querySelectorAll('path').forEach(el => el.setAttribute('fill', color))
+      }
+      // Marquer la tuile sélectionnée (fond vert léger + bordure primaire)
+      markSelected(colorsMonture, btn)
+    })
+  }
+
+  const colorsBranches = document.getElementById('colors-branches')
+  if (colorsBranches) {
+    colorsBranches.addEventListener('click', e => {
+      const target = e.target
+      const btn = target instanceof Element ? target.closest('button[data-color]') : null
+      if (!btn) return
+      const color = btn.getAttribute('data-color')
+      if (!color) return
+      if (branchesGroup) {
+        branchesGroup.querySelectorAll('path').forEach(el => el.setAttribute('fill', color))
+        branchesGroup.querySelectorAll('line').forEach(el => el.setAttribute('stroke', color))
+      }
+      // Marquer la tuile sélectionnée (fond vert léger + bordure primaire)
+      markSelected(colorsBranches, btn)
+    })
+  }
+
+  // Sélections par défaut : chercher la tuile nommée 'Noir' sinon fallback sur la première
+  try {
+    if (colorsMonture) {
+      const defaultMonture = colorsMonture.querySelector('button[aria-label="Noir"]') || colorsMonture.querySelector('button[data-color]')
+      if (defaultMonture instanceof Element) {
+        const defColor = defaultMonture.getAttribute('data-color')
+        if (defColor && montureGroup) montureGroup.querySelectorAll('path').forEach(el => el.setAttribute('fill', defColor))
+        markSelected(colorsMonture, defaultMonture)
+      }
+    }
+    if (colorsBranches) {
+      const defaultBranches = colorsBranches.querySelector('button[aria-label="Noir"]') || colorsBranches.querySelector('button[data-color]')
+      if (defaultBranches instanceof Element) {
+        const defColor = defaultBranches.getAttribute('data-color')
+        if (defColor && branchesGroup) {
+          branchesGroup.querySelectorAll('path').forEach(el => el.setAttribute('fill', defColor))
+          branchesGroup.querySelectorAll('line').forEach(el => el.setAttribute('stroke', defColor))
+        }
+        markSelected(colorsBranches, defaultBranches)
+      }
+    }
+  } catch (e) {
+    console.debug('Erreur lors de l\'application des couleurs par défaut', e)
+  }
+
+  // Helper: applique l'état visuel 'sélectionné' sur la tuile cliquée et le retire des autres
+  /**
+   * @param {Element|HTMLElement} container
+   * @param {Element|HTMLElement} btn
+   */
+  function markSelected(/** @type {Element|HTMLElement} */ container, /** @type {Element|HTMLElement} */ btn) {
+    if (!(container instanceof Element) || !(btn instanceof Element)) return
+    const buttons = Array.from(container.querySelectorAll('button[data-color]'))
+    // récupérer la couleur primaire depuis les variables CSS si possible
+    const rootStyles = getComputedStyle(document.documentElement)
+    const primaryColor = rootStyles.getPropertyValue('--color-primary') || '#31765F'
+    buttons.forEach((b) => {
+      if (!(b instanceof HTMLElement)) return
+      // retirer état sélection
+      b.classList.remove('bg-[#ECFDF5]', 'border', 'border-primary', 'ring-2', 'ring-primary')
+      // remettre fond blanc par défaut et effacer styles inline
+      b.classList.add('bg-white')
+      b.style.background = ''
+      b.style.borderColor = ''
+    })
+
+    // appliquer fond vert très pâle (#ECFDF5) et bordure plus fine via inline styles
+    if (btn instanceof HTMLElement) {
+      btn.classList.remove('bg-white')
+      btn.classList.add('ring-2', 'ring-primary')
+      // priorité via style pour s'assurer de l'application même si Tailwind produit un ordre différent
+      btn.style.background = '#ECFDF5'
+      btn.style.borderColor = (primaryColor || '#31765F').trim()
+    }
+  }
+
+  // Similar selection helper for generic buttons (dimensions)
+  /**
+   * @param {Element|HTMLElement} container
+   * @param {Element|HTMLElement} btn
+   */
+  function markSelectedGeneric(/** @type {Element|HTMLElement} */ container, /** @type {Element|HTMLElement} */ btn) {
+    if (!(container instanceof Element) || !(btn instanceof Element)) return
+    const buttons = Array.from(container.querySelectorAll('button'))
+    const rootStyles = getComputedStyle(document.documentElement)
+    const primaryColor = (rootStyles.getPropertyValue('--color-primary') || '#31765F').trim()
+    buttons.forEach((b) => {
+      if (!(b instanceof HTMLElement)) return
+      b.classList.remove('ring-2', 'ring-primary')
+      b.classList.remove('bg-[#ECFDF5]')
+      b.classList.remove('border-primary')
+      b.classList.add('bg-white')
+      b.style.background = ''
+      b.style.borderColor = ''
+    })
+    if (btn instanceof HTMLElement) {
+      btn.classList.remove('bg-white')
+      btn.classList.add('ring-2', 'ring-primary')
+      btn.style.background = '#ECFDF5'
+      btn.style.borderColor = primaryColor
+    }
+  }
+
+  // Attach selection behavior to dimension buttons (behave like color tiles)
+  const dimsContainer = document.getElementById('panel-dimensions')
+  if (dimsContainer) {
+    dimsContainer.addEventListener('click', function (e) {
+      const target = e.target
+      const btn = target instanceof Element ? target.closest('button') : null
+      if (!btn) return
+      // Only handle buttons that are the option-like ones (rounded-xl)
+      if (!(btn.classList && btn.classList.contains('rounded-xl'))) return
+      // find the closest grid group so selection is scoped per group (pont vs verres)
+      const group = btn.closest('.grid')
+      if (group instanceof Element) {
+        markSelectedGeneric(group, btn)
+      } else {
+        markSelectedGeneric(dimsContainer, btn)
+      }
+      // after selection, recompute the estimated width
+      try { updateDimensionsInfo() } catch (err) { /* noop */ }
+    })
+  }
+
+  /**
+   * Parse a string like "14mm" or "48mm" and return number (mm) or null
+   * @param {string} txt
+   * @returns {number|null}
+   */
+  function parseMm(txt) {
+    if (!txt || typeof txt !== 'string') return null
+    const m = txt.match(/(\d{1,3})\s*mm/) || txt.match(/(\d{1,3})/) 
+    if (!m) return null
+    const n = parseInt(m[1], 10)
+    return Number.isFinite(n) ? n : null
+  }
+
+  function getSelectedDimensionValue(containerOrSelector) {
+    const container = typeof containerOrSelector === 'string' ? document.querySelector(containerOrSelector) : containerOrSelector
+    if (!container || !(container instanceof Element)) return null
+    const buttons = Array.from(container.querySelectorAll('button'))
+    if (!buttons.length) return null
+    // prefer button with inline style background set to our selection color, or with class ring-2, or the utility class bg-[#ECFDF5]
+    let selected = buttons.find(b => (b instanceof HTMLElement) && (b.style && b.style.background && b.style.background.indexOf('#ECFDF5') !== -1))
+    if (!selected) selected = buttons.find(b => b.classList && (b.classList.contains('ring-2') || b.classList.contains('bg-[#ECFDF5]')))
+    if (!selected) selected = buttons[0]
+    const txt = (selected && selected.textContent) ? selected.textContent : ''
+    return parseMm(txt.trim())
+  }
+
+  /**
+   * Update the estimated width and recommended size based on selected bridge and lens size
+   */
+  function updateDimensionsInfo() {
+    const bridge = getSelectedDimensionValue(document.getElementById('grid-pont')) || null
+    // lens size is in grid-verres
+    const lens = getSelectedDimensionValue(document.getElementById('grid-verres')) || null
+    const estSpan = document.getElementById('estimated-width')
+    const recSpan = document.getElementById('recommended-size')
+    if (!estSpan || !recSpan) return
+    const b = typeof bridge === 'number' ? bridge : 18
+    const l = typeof lens === 'number' ? lens : 52
+    const total = b + (l * 2)
+    estSpan.textContent = `${total} mm`
+    // simple mapping for recommended size
+    let rec = 'Moyen'
+    if (l <= 50) rec = 'Petit'
+    else if (l >= 56) rec = 'Grand'
+    else rec = 'Moyen'
+    recSpan.textContent = rec
+  }
+
+  // run an initial update (in case some buttons are preselected)
+  try { updateDimensionsInfo() } catch (err) { /* noop */ }
+
+  // Materials selects: apply light selected styling when user chooses an option
+  const matMonture = document.querySelector('#panel-materiaux select:nth-of-type(1)')
+  const matBranches = document.querySelector('#panel-materiaux select:nth-of-type(2)')
+  const matVerre = document.querySelector('#panel-materiaux select:nth-of-type(3)')
+  function styleSelectChosen(sel) {
+    if (!(sel instanceof HTMLSelectElement)) return
+    const rootStyles = getComputedStyle(document.documentElement)
+    const primary = (rootStyles.getPropertyValue('--color-primary') || '#31765F').trim()
+    if (sel.value && sel.value !== '') {
+      sel.classList.add('bg-[#ECFDF5]')
+      sel.style.borderColor = primary
+    } else {
+      sel.classList.remove('bg-[#ECFDF5]')
+      sel.style.borderColor = ''
+    }
+  }
+  if (matMonture) {
+    // don't apply the green background for the monture select — only update border
+    function styleSelectChosenMonture(sel) {
+      if (!(sel instanceof HTMLSelectElement)) return
+      const rootStyles = getComputedStyle(document.documentElement)
+      const primary = (rootStyles.getPropertyValue('--color-primary') || '#31765F').trim()
+      if (sel.value && sel.value !== '') {
+        // keep border like other selects, but no green background
+        sel.classList.remove('bg-[#ECFDF5]')
+        sel.classList.add('border')
+        // inline border-color ensures it matches primary even if Tailwind isn't applied
+        sel.style.borderColor = primary
+      } else {
+        sel.classList.remove('border')
+        sel.style.borderColor = ''
+      }
+    }
+    matMonture.addEventListener('change', function () { styleSelectChosenMonture(matMonture) })
+    styleSelectChosenMonture(matMonture)
+  }
+  if (matBranches) {
+    matBranches.addEventListener('change', function () { styleSelectChosen(matBranches) })
+    styleSelectChosen(matBranches)
+  }
+  if (matVerre) {
+    matVerre.addEventListener('change', function () { styleSelectChosen(matVerre) })
+    styleSelectChosen(matVerre)
+  }
+
+  // Simple SPA-like tab panel handling (URL sync + pushState)
+  try {
+    /** @type {Record<string, HTMLElement | null>} */
+    const tabsMap = {
+      'couleurs': document.getElementById('tab-couleurs'),
+      'materiaux': document.getElementById('tab-materiaux'),
+      'dimensions': document.getElementById('tab-dimensions')
+    }
+
+    /** @type {Record<string, HTMLElement | null>} */
+    const panelsMap = {
+      'couleurs': document.getElementById('panel-couleurs'),
+      'materiaux': document.getElementById('panel-materiaux'),
+      'dimensions': document.getElementById('panel-dimensions')
+    }
+
+    /**
+     * Affiche le panneau demandé et met à jour l'URL si nécessaire
+     * @param {string} name
+     * @param {boolean} [push]
+     */
+    function showPanel(name, push = true) {
+      const n = (name || 'couleurs').toLowerCase()
+    Object.keys(tabsMap).forEach(k => {
+      const key = k
+      const t = /** @type {HTMLElement | null} */ (tabsMap[key])
+      const p = /** @type {HTMLElement | null} */ (panelsMap[key])
+        if (p) p.classList.toggle('hidden', key !== n)
+        if (t) {
+          // style actif: blanc, texte principal, légère ombre
+          if (key === n) {
+            t.classList.add('bg-white', 'text-base-content', 'shadow', 'font-medium')
+            t.classList.remove('text-base-content/70')
+          } else {
+            t.classList.remove('bg-white', 'text-base-content', 'shadow', 'font-medium')
+            t.classList.add('text-base-content/70')
+          }
+        }
+      })
+
+      if (push && window && window.history && typeof window.history.pushState === 'function') {
+        try {
+          const url = new URL(window.location.href)
+          url.searchParams.set('tab', n)
+          window.history.pushState({ tab: n }, '', url)
+        } catch (e) {}
+      }
+    }
+
+    Object.keys(tabsMap).forEach(function (k) {
+      var key = k
+      var tabEl = tabsMap[key]
+      if (!tabEl) return
+      /** @type {(ev: MouseEvent) => void} */
+        var __tabHandler = function (/** @type {MouseEvent} */ ev) {
+          try { ev.preventDefault() } catch (e) {}
+          showPanel(key, true)
+        }
+      tabEl.addEventListener('click', __tabHandler)
+    })
+
+    const params = new URLSearchParams(window.location.search)
+    const initial = (params.get('tab') || 'couleurs').toLowerCase()
+    showPanel(initial, false)
+
+    window.addEventListener('popstate', () => {
+      const p = new URLSearchParams(window.location.search).get('tab') || 'couleurs'
+      showPanel(p, false)
+    })
+  } catch (e) {
+    // noop
+  }
+})
+window.addEventListener("DOMContentLoaded", () => {
+      if (saveButton) saveButton.addEventListener("click", saveSVG);
+    });
+</script>
+</Layout>
