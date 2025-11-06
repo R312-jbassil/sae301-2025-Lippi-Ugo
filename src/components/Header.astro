@@ -1,0 +1,45 @@
+---
+import Logo from "../assets/TaVueLogo.svg";
+import Panier from "../assets/Panier.svg";
+import Deconnexion from "../assets/Deconnexion.svg";
+const { current = "/" } = Astro.props;
+---
+
+<header>
+  <div class="nav-content flex items-center justify-between">
+    <a href="/configurateur"><Logo/></a>
+
+    <nav>
+      <ul class="flex items-center gap-6">
+        <li>
+          <a href="/configurateur" class={current === "/configurateur" ? "active" : ""}>
+            Configurateur
+          </a>
+        </li>
+        <li>
+          <a href="/configurateur-ia" class={current === "/configurateur-ia" ? "active" : ""}>
+            Configurateur IA
+          </a>
+        </li>
+        <li>
+          <a href="/creations" class={current === "/creations" ? "active" : ""}>
+            Mes créations
+          </a>
+        </li>
+        <li>
+          <a href="/panier" class={current === "/panier" ? "active flex items-center gap-1" : "flex items-center gap-1"}>
+            <Panier />
+            Panier
+          </a>
+        </li>
+        <!-- Nom et bouton de déconnexion ajoutés ici -->
+        <li class="flex items-center gap-2">
+          <span class="username">Ugo LIPPI</span>
+          <a href="/" class="btn btn-ghost btn-md p-2">
+            <Deconnexion />
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

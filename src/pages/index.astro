@@ -1,11 +1,310 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/LayoutWithoutHeader.astro";
+import Logo from "../assets/TaVueLogo.svg";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="TaVue - Connexion / Inscription">
+	<div class="min-h-screen flex items-center justify-center bg-base-100">
+	<div class="absolute top-10 left-10 w-96 h-96 bg-[#A4F4CF] opacity-50 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 right-0 w-[28rem] h-[28rem] bg-[#A4F4CF] opacity-70 rounded-full blur-3xl"></div>
+    <div class="card bg-secondary shadow-xl w-full max-w-sm p-8">
+      <div class="flex justify-center mb-4">
+		<Logo class="w-20 h-20" />
+	  </div>
+      <h2 class="text-center text-lg font-medium mb-1">Bienvenue</h2>
+      <p class="text-center text-sm mb-6 text-secondary-content">
+        Créez vos lunettes éco-responsables
+      </p>
+
+      <!-- Onglets -->
+      <div class="flex justify-center mb-6 bg-accent rounded-full p-1">
+        <button
+          id="tab-login"
+          class="btn btn-sm rounded-full w-40 bg-base-100"
+        >
+          Connexion
+        </button>
+        <button
+          id="tab-register"
+          class="btn btn-sm rounded-full w-36 ml-2 bg-accent"
+        >
+          Inscription
+        </button>
+      </div>
+
+      <!-- Connexion -->
+      <form id="login-form" class="space-y-4">
+        <label class="form-control">
+          <span class="label-text">Email</span>
+          <input
+            id="login-email"
+            type="email"
+            placeholder="votre@email.fr"
+            class="input input-bordered w-full"
+            required
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label-text">Mot de passe</span>
+          <input
+            id="login-password"
+            type="password"
+            placeholder="********"
+            class="input input-bordered w-full"
+            required
+          />
+        </label>
+
+        <div class="flex items-center justify-between text-sm pt-3">
+          <label class="flex items-center gap-2">
+            <input id="login-remember" type="checkbox" class="checkbox checkbox-sm" />
+            <span>Se souvenir de moi</span>
+          </label>
+          <a href="#" class="link link-hover">Mot de passe oublié ?</a>
+        </div>
+
+        <button type="submit" class="btn w-full bg-primary text-neutral-content hover:bg-neutral">
+          Se connecter
+        </button>
+
+        <p id="login-msg" class="text-sm text-red-500 mt-2"></p>
+
+        <div class="divider text-xs text-gray-400">OU CONTINUER AVEC</div>
+
+        <div class="grid gap-2">
+          <button id="google-login" type="button" class="btn w-full bg-base-100 border border-gray-200 flex items-center gap-2">
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google"
+              class="w-5 h-5"
+            />
+            <span>Se connecter avec Google</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Inscription -->
+      <form id="register-form" class="space-y-4 hidden">
+        <div class="flex gap-2">
+          <label class="form-control w-1/2">
+            <span class="label-text">Prénom</span>
+            <input
+              id="register-first"
+              type="text"
+              placeholder="Jean"
+              class="input input-bordered w-full"
+            />
+          </label>
+          <label class="form-control w-1/2">
+            <span class="label-text">Nom</span>
+            <input
+              id="register-last"
+              type="text"
+              placeholder="Dupont"
+              class="input input-bordered w-full"
+            />
+          </label>
+        </div>
+
+        <label class="form-control">
+          <span class="label-text">Email</span>
+          <input
+            name="email"
+            id="register-email"
+            type="email"
+            placeholder="votre@email.fr"
+            class="input input-bordered w-full"
+            required
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label-text">Mot de passe</span>
+          <input
+            name="password"
+            id="register-password"
+            type="password"
+            placeholder="********"
+            class="input input-bordered w-full"
+            required
+          />
+        </label>
+
+        <label class="form-control">
+          <span class="label-text">Confirmer le mot de passe</span>
+          <input
+            name="passwordConfirm"
+            id="register-password-confirm"
+            type="password"
+            placeholder="********"
+            class="input input-bordered w-full"
+            required
+          />
+        </label>
+
+        <label class="flex items-center gap-2 text-sm pt-3">
+          <input id="register-terms" type="checkbox" class="checkbox checkbox-sm" />
+          <span>J’accepte les conditions d’utilisation et la politique de confidentialité</span>
+        </label>
+
+        <button type="submit" class="btn w-full bg-primary text-neutral-content hover:bg-neutral">
+          Créer mon compte
+        </button>
+
+        <p id="register-msg" class="text-sm text-red-500 mt-2"></p>
+
+        <div class="divider text-xs text-gray-400">OU CONTINUER AVEC</div>
+
+        <button class="btn w-full bg-base-100 border border-gray-200">
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google"
+            class="w-5 h-5"
+          />
+          <span>Se connecter avec Google</span>
+        </button>
+      </form>
+
+      <p class="text-center text-xs text-primary mt-6">
+    	Fabrication française • Éco-responsable
+      </p>
+    </div>
+  </div>
+
+  <!-- Script: tabs + PocketBase auth handlers -->
+  <script type="module">
+  // Import dynamique du client PocketBase (plus fiable côté client)
+  const { pb } = await import('/lib/pb.js');
+
+    const tabLogin = document.getElementById("tab-login");
+    const tabRegister = document.getElementById("tab-register");
+    const loginForm = document.getElementById("login-form");
+    const registerForm = document.getElementById("register-form");
+
+    // Tabs (guarded)
+    if (tabLogin && tabRegister && loginForm && registerForm) {
+  const msgEl = document.getElementById('login-msg');
+  const googleBtn = document.getElementById('google-login');
+
+    // Registration flow
+    const registerMsgEl = document.getElementById('register-msg');
+
+    // Helper pour formater proprement les valeurs de validation (arrays, objets, etc.)
+    const formatValidationValue = (v) => {
+      if (Array.isArray(v)) return v.join(', ');
+      if (v && typeof v === 'object') {
+        if (typeof v.message === 'string') return v.message;
+        try {
+          return Object.entries(v)
+            .map(([k, val]) => `${k}: ${Array.isArray(val) ? val.join(', ') : (val && typeof val === 'object' ? JSON.stringify(val) : String(val))}`)
+            .join(' — ');
+        } catch (e) {
+          return JSON.stringify(v);
+        }
+      }
+      return String(v);
+    };
+    if (registerForm) {
+      // Simple registration handler as provided by the user
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (registerMsgEl) registerMsgEl.textContent = '';
+
+        const email = registerForm.email.value;
+        const password = registerForm.password.value;
+        const passwordConfirm = registerForm.passwordConfirm.value;
+
+        try {
+          // création utilisateur
+          await pb.collection('users').create({
+            email,
+            password,
+            passwordConfirm
+          });
+          // envoi email de vérification (non-blocking)
+          try { await pb.collection('users').requestVerification(email); } catch (e) { console.warn('requestVerification failed', e); }
+
+          if (registerMsgEl) registerMsgEl.textContent = 'Inscription réussie, vérifiez vos emails';
+          // also set generic msg element if present
+          const msg = document.getElementById('msg'); if (msg) msg.textContent = 'Inscription réussie, vérifiez vos emails';
+        } catch (err) {
+          console.error(err);
+          if (registerMsgEl) registerMsgEl.textContent = 'Échec de l\'inscription';
+          const msg = document.getElementById('msg'); if (msg) msg.textContent = 'Échec de l\'inscription';
+        }
+      });
+    }
+      tabLogin.addEventListener("click", () => {
+        tabLogin.classList.add("bg-base-100");
+        tabRegister.classList.remove("bg-base-100");
+        tabRegister.classList.add("bg-accent");
+
+        loginForm.classList.remove("hidden");
+        registerForm.classList.add("hidden");
+      });
+
+      tabRegister.addEventListener("click", () => {
+        tabRegister.classList.add("bg-base-100");
+        tabLogin.classList.remove("bg-base-100");
+        tabLogin.classList.add("bg-accent");
+
+        registerForm.classList.remove("hidden");
+        loginForm.classList.add("hidden");
+      });
+    }
+
+  // Login flow
+  const msgEl = document.getElementById('login-msg');
+  const googleBtn = document.getElementById('google-login');
+
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!msgEl) return;
+        msgEl.textContent = '';
+        const emailInput = document.getElementById('login-email');
+        const passInput = document.getElementById('login-password');
+        if (!emailInput || !passInput) return;
+
+        const email = emailInput.value.trim();
+        const password = passInput.value;
+
+        try {
+          await pb.collection('users').authWithPassword(email, password);
+
+          // Vérifier le flag verified si présent
+          const verified = pb.authStore.model?.verified;
+          if (verified === false) {
+            msgEl.textContent = 'Veuillez vérifier votre email avant de continuer.';
+            return;
+          }
+
+          // Redirection après connexion
+          window.location.href = '/configurateur';
+        } catch (err) {
+          console.error(err);
+          msgEl.textContent = 'Échec de connexion — vérifiez vos identifiants.';
+        }
+      });
+    }
+
+    // OAuth buttons
+    if (googleBtn) {
+      googleBtn.addEventListener('click', async () => {
+        if (msgEl) msgEl.textContent = '';
+        try {
+          // This will redirect to PocketBase OAuth flow
+          await pb.collection('users').authWithOAuth2({ provider: 'google' });
+          // On success PocketBase will redirect back; just in case:
+          window.location.href = '/configurateur';
+        } catch (err) {
+          console.error(err);
+          if (msgEl) msgEl.textContent = 'Échec de connexion Google';
+        }
+      });
+    }
+    
+  </script>
 </Layout>
+

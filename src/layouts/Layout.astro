@@ -1,5 +1,10 @@
+---
+import "../../src/styles/global.css";
+import Header from "../components/Header.astro";
+const currentPath = Astro.url.pathname;
+---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="myTheme">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -7,7 +12,8 @@
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro Basics</title>
 	</head>
-	<body>
+	<body class="font-arimo">
+		<Header current={currentPath}/>	
 		<slot />
 	</body>
 </html>

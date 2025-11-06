@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&display=swap');
+@import "tailwindcss";
+
+@plugin "daisyui"{
+  themes: light --default, dark --prefersdark, myTheme;
+};
+
+@theme{
+    --font-arimo : "Arimo", sans-serif;
+}
+
+
+@plugin "daisyui/theme" {
+  name: "myTheme";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: #F9FAFB;
+  --color-base-300: #ECFDF5;
+  --color-base-content: oklch(0% 0 0);
+  --color-primary: #31765F;
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: #F6F2E8;
+  --color-secondary-content: #525252;
+  --color-accent: #ECECF0;
+  --color-accent-content: oklch(0% 0 0);
+  --color-neutral: #285e4d;
+  --color-neutral-content: oklch(98% 0.016 73.684);
+  --color-info: oklch(42% 0.199 265.638);
+  --color-info-content: oklch(97% 0 0);
+  --color-success: oklch(44% 0.119 151.328);
+  --color-success-content: oklch(92% 0.004 286.32);
+  --color-warning: oklch(82% 0.189 84.429);
+  --color-warning-content: oklch(41% 0.112 45.904);
+  --color-error: oklch(50% 0.213 27.518);
+  --color-error-content: oklch(96% 0.007 247.896);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.28125rem;
+  --size-field: 0.25rem;
+  --border: 2px;
+  --depth: 1;
+  --noise: 1;
+}
+
+
+@layer components {
+  header {
+    @apply bg-secondary shadow-sm relative;
+  }
+
+  .nav-content {
+    @apply max-w-7xl mx-auto flex items-center justify-between px-8 py-3;
+  }
+
+  nav ul {
+    @apply flex gap-4 list-none m-0 p-0;
+  }
+
+  nav a {
+    @apply text-[#525252] no-underline font-medium text-[0.95rem] px-3 py-1.5 rounded-lg transition duration-200 bg-transparent;
+  }
+
+  nav a:hover {
+    @apply bg-primary text-primary-content;
+  }
+
+  nav a.active {
+    @apply bg-primary text-primary-content;
+  }
+
+  .username {
+    @apply text-[#525252] font-medium;
+  }
+
+  @media (max-width: 700px) {
+    .nav-content {
+      @apply flex-col items-stretch gap-4 px-4;
+    }
+
+    nav ul {
+      @apply flex-col items-end gap-3;
+    }
+  }
+}
