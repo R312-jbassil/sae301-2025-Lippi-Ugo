@@ -79,7 +79,7 @@ import Logo from "../assets/TaVueLogo.svg";
               alt="Google"
               class="w-5 h-5"
             />
-            <span>Se connecter avec Google</span>
+            Se connecter avec Google
           </button>
         </div>
       </form>
@@ -298,12 +298,18 @@ import Logo from "../assets/TaVueLogo.svg";
     }
 
     // OAuth / Google button: fallback message (requires server-side OAuth wiring)
-    const googleBtn = document.getElementById('google-login');
-    if (googleBtn) {
-      googleBtn.addEventListener('click', () => {
-        if (loginMsgEl) loginMsgEl.textContent = 'Connexion OAuth non configurée côté client. Utilisez le flux serveur.';
-      });
-    }
+    const pb = await import('../utils/pb.ts');
+
+    const googlelogin = document.getElementById("googlelogin");
+      googlelogin.onclick = async () => {
+        try {
+          await pb.collection("users").authWithOAuth2({provider:'google'});
+          location.href = "/configurateur";
+        } catch (err) {
+          document.getElementById("msg").textContent = "Échec de connexion Google";
+          console.error(err);
+        }
+      };
   </script>
 </Layout>
 
