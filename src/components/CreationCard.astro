@@ -1,24 +1,53 @@
 ---
-const { id, nom, code_svg} = Astro.props
----
+const { id, nom, code_svg, created, couleurs } = Astro.props
 
-<div class="card bg-base-100 shadow-xl border border-base-300 rounded-xl overflow-hidden">
-  <div class="card-body flex flex-col justify-between items-center gap-4 p-6 min-h-[300px]">
-    <div
-      class="w-full h-[200px] flex justify-center items-center border border-dashed border-primary rounded-lg overflow-hidden"
-      set:html={code_svg}
-    ></div>
-    <h2 class="text-lg font-semibold text-center">{nom}</h2>
-    <button
-      class="btn btn-outline btn-error btn-sm"
-      data-id={id}
-    >
-      Supprimer
-    </button>
-    <button>
-      <a href={`/gallery/${id}`} class="btn btn-outline btn-primary btn-sm">
-        Éditer
+// Helper: formatted date for title (server-side)
+const formatDate = (iso?: string | number | Date): string => {
+  try {
+    const d = iso ? new Date(iso) : new Date();
+    return d.toLocaleDateString('fr-FR');
+  } catch (e) {
+    return '';
+  }
+}
+
+const dateLabel = created ? `Création ${formatDate(created)}`: 'Création récente';
+const swatches = Array.isArray(couleurs) && couleurs.length ? couleurs : ['#111111', '#ffffff'];
+---
+<article class="card bg-white shadow-lg rounded-xl overflow-hidden border border-base-200">
+  <!-- Top: large SVG preview -->
+  <div class="w-full h-48 bg-base-100 flex items-center justify-center overflow-hidden">
+    <div class="w-full h-full flex items-center justify-center p-4" set:html={code_svg}></div>
+  </div>
+
+  <div class="p-6 flex flex-col gap-4">
+    <div>
+      <h3 class="text-lg font-semibold">{dateLabel}</h3>
+      <p class="text-sm text-base-content/60 mt-1">{nom}</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+        {swatches.map((c) => (
+          <div class="w-8 h-8 rounded-full border border-base-200 shadow-sm" style={`background:${c}`}></div>
+        ))}
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href={`/gallery/${id}`} class="flex-1 btn btn-block bg-[#2f7b60] hover:bg-[#27684f] text-white gap-3 items-center justify-center" aria-label="Voir">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12z"/></svg>
+        Voir
       </a>
+
+  <button class="btn btn-outline btn-sm" data-id={id} aria-label="Supprimer">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18"/><path d="M8 6v14a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>
+    </div>
+
+  <button class="btn btn-ghost mt-2 border border-base-200" data-id={id} aria-label="Ajouter au panier">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+      Ajouter au panier
     </button>
   </div>
-</div>
+</article>

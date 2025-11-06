@@ -1,9 +1,10 @@
 ---
-import Layout from '../layouts/Layout.astro'
-import pb from '../utils/pb'
-import CreationCard from '../components/CreationCard.astro'
+import Layout from '../../layouts/Layout.astro'
+import pb from '../../utils/pb'
+import CreationCard from '../../components/CreationCard.astro'
 
-const creations = await pb.collection('lunette').getFullList()
+// request full list and include any custom fields (couleurs)
+const creations = await pb.collection('lunette').getFullList();
 ---
 
 <Layout title="Mes créations">
@@ -28,7 +29,7 @@ const creations = await pb.collection('lunette').getFullList()
       ) : (
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           {creations.map(c => (
-            <CreationCard id={c.id} nom={c.nom} code_svg={c.code_svg} created={c.created} />
+            <CreationCard id={c.id} nom={c.nom} code_svg={c.code_svg} created={c.created}/>
           ))}
         </div>
       )}

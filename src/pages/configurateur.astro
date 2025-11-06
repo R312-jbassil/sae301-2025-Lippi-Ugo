@@ -109,8 +109,8 @@ const materiaux = await pb.collection('materiaux').getFullList()
           <div>
               <div class="font-semibold mb-2">Matériau de la monture</div>
               <select class="select select-bordered w-full">
-                {materiaux.filter(m => ((m.type || m.type_materiau || '').toLowerCase() === 'monture')).map(m => (
-                  <option value={m.libelle || m.nom || m.name || m.nom_materiau}>{m.libelle || m.nom || m.name || m.nom_materiau}</option>
+                {materiaux.filter(m => ((m.type).toLowerCase() === 'monture')).map(m => (
+                  <option value={m.libelle}>{m.libelle}</option>
                 ))}
               </select>
           </div>
@@ -118,8 +118,8 @@ const materiaux = await pb.collection('materiaux').getFullList()
           <div>
             <div class="font-semibold mb-2">Matériau des branches</div>
             <select class="select select-bordered w-full">
-              {materiaux.filter(m => ((m.type || m.type_materiau || '').toLowerCase() === 'branches')).map(m => (
-                <option value={m.libelle || m.nom || m.name || m.nom_materiau}>{m.libelle || m.nom || m.name || m.nom_materiau}</option>
+              {materiaux.filter(m => ((m.type).toLowerCase() === 'branches')).map(m => (
+                <option value={m.libelle}>{m.libelle}</option>
               ))}
             </select>
           </div>
@@ -127,8 +127,8 @@ const materiaux = await pb.collection('materiaux').getFullList()
           <div>
             <div class="font-semibold mb-2">Type de verres</div>
             <select class="select select-bordered w-full">
-              {materiaux.filter(m => ((m.type || m.type_materiau || '').toLowerCase() === 'verre' || (m.type || '').toLowerCase() === 'verres')).map(m => (
-                <option value={m.libelle || m.nom || m.name || m.nom_materiau}>{m.libelle || m.nom || m.name || m.nom_materiau}</option>
+              {materiaux.filter(m => ((m.type).toLowerCase() === 'verre' || (m.type).toLowerCase() === 'verres')).map(m => (
+                <option value={m.libelle}>{m.libelle}</option>
               ))}
             </select>
           </div>
