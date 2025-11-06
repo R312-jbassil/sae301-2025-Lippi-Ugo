@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro'
+import pb from '../utils/pb'
+import CreationCard from '../components/CreationCard.astro'
+
+const creations = await pb.collection('lunette').getFullList()
+---
+
+<Layout title="Mes créations">
+  <div class="max-w-6xl mx-auto py-12">
+    <h1 class="text-2xl font-medium text-center mb-6">Mes créations</h1>
+    <p class="text-center text-sm text-base-content/60 mb-8">Retrouvez toutes vos créations personnalisées</p>
+
+    <div id="creations-root" class="min-h-[240px]">
+      {creations.length === 0 ? (
+        <div class="flex items-center justify-center p-12 bg-white rounded shadow">
+          <div class="text-center w-full">
+            <div class="mx-auto w-20 h-20 rounded-full bg-[#31765F] flex items-center justify-center mb-4 shadow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20v-6"/><path d="M12 8V4"/></svg>
+            </div>
+            <div class="font-medium">Aucune création pour le moment</div>
+            <div class="text-xs text-base-content/70 mt-2 mb-4">Commencez par créer votre première paire de lunettes personnalisée avec notre configurateur</div>
+            <div>
+              <a href="/configurateur" class="btn bg-[#31765F] hover:bg-[#2b6b57] text-white">Créer mes lunettes</a>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {creations.map(c => (
+            <CreationCard id={c.id} name={c.nom} svg={c.code_svg} />
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</Layout>

@@ -1,0 +1,402 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Configurateur IA - TaVue">
+
+<div class="min-h-screen bg-base-100 py-12">
+    <div class="max-w-7xl mx-auto px-6">
+        <p class="text-center text-sm text-base-content/60 mb-6">Décrivez vos lunettes idéales et laissez l'IA les créer pour vous</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+            <!-- Left column: preview + details -->
+            <div class="md:col-span-7">
+                <div class="bg-base-100 rounded-xl shadow-lg p-8">
+                                        <div id="svg-container" class="w-full h-72 flex items-center justify-center border border-gray-200 rounded-md bg-white">
+                                                <div id="svg-output" class="max-w-full max-h-full"><!-- preview vide au chargement ; BASE_SVG est caché et utilisé comme fallback --></div>
+                                        </div>
+                </div>
+
+                <div class="mt-6 bg-[#ECFDF5] border border-[#31765F] border-opacity-30 rounded-lg p-4 shadow-sm">
+                    <div class="grid grid-cols-2 gap-4 text-sm text-base-content/80">
+                        <div>Matériau monture:</div>
+                        <div class="text-right font-medium">Acétate recyclé</div>
+                        <div>Matériau branches:</div>
+                        <div class="text-right font-medium">Acétate recyclé</div>
+                        <div>Type de verres:</div>
+                        <div class="text-right font-medium">Solaire</div>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex items-center gap-4">
+                    <input id="svg-name" type="text" placeholder="Nom de votre création" class="input input-bordered flex-1" />
+                    <button id="save-button" class="btn bg-[#31765F] hover:bg-[#2b6b57] text-white ml-2">Sauvegarder</button>
+                    <button id="generate-button-duplicate" class="btn btn-ghost ml-2">Au panier</button>
+                </div>
+            </div>
+
+            <!-- Right column: prompt + conseils -->
+            <div class="md:col-span-5 flex flex-col gap-6">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <label class="flex items-center gap-2 text-sm text-base-content font-medium mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#31765F]" viewBox="0 0 24 24" fill="none" stroke="#31765F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6"/><path d="M12 8V4"/></svg>
+                        Décrivez vos lunettes idéales
+                    </label>
+                    <textarea id="user-prompt" class="textarea textarea-bordered w-full h-28" placeholder="Ex: Des lunettes de soleil noires et élégantes..."></textarea>
+                    <div class="mt-4 flex gap-3">
+                        <button id="generate-button" class="btn bg-[#31765F] hover:bg-[#2b6b57] text-white flex-1">Générer avec l'IA</button>
+                        <button id="edit-button" class="btn btn-outline">Editer</button>
+                    </div>
+                </div>
+
+                <div class="bg-[#ECFDF5] border border-[#31765F] border-opacity-30 rounded-lg p-6">
+                    <div class="flex items-start gap-3">
+                        <div class="text-xl text-[#31765F]">💡</div>
+                        <div>
+                            <div class="font-medium text-[#31765F] mb-2">Conseils</div>
+                            <ul class="text-sm text-[#31765F]/90 list-disc list-inside space-y-1">
+                                <li>Mentionnez les couleurs souhaitées (noir, bleu, vert...)</li>
+                                <li>Précisez le style (élégant, sportif, vintage...)</li>
+                                <li>Indiquez le type de verres (solaires, optiques...)</li>
+                                <li>Décrivez les matériaux (métal, bois, bio-acétate...)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden / secondary code block kept for script (don't change id) -->
+                <div class="hidden">
+                    <pre id="svg-code" class="whitespace-pre-wrap"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //@ts-nocheck
+    let promptList = [];
+
+    // Modèle de base (caché dans l'UI) — utilisé comme fallback si aucun SVG en DOM ni en historique
+    const BASE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 507.87 195.75" class="w-[660px] h-[300px]">
+          <defs>
+            <style>
+              {.cls-1{fill:#fff;stroke:#1e1e1c;stroke-width:0.5px;}.cls-1,.cls-3,.cls-4{stroke-miterlimit:10;}.cls-2{fill:#727070;}.cls-3,.cls-4{fill:none;stroke:#1d1d1b;}.cls-3{opacity:0.3;}}
+            </style>
+          </defs>
+          <g id="Calque_2" data-name="Calque 2">
+            <g id="Calque_1-2" data-name="Calque 1">
+              <g id="branches">
+                <path class="cls-1" d="M7.27,54s61.8-7,68.79-11,14-10,24.42-12,80.74-14,80.74-14,9-2.49,21.93,7,41.37,39.87,49.34,38.88S264.45,51,262,46,211,5,202.65,2.63c-11.94-3.35-27.41-3-46.36,0S10.75,31.86,10.75,31.86-5.69,39.52,7.26,54Z"/>
+                <path class="cls-2" d="M257,48.48s-.38,7.7-5,7c-6.22-1-44.86-42.36-57.82-40.37,0,0,10.68,3.39,23.12,14.58C225.45,37,260.4,77.05,257,48.48Z"/>
+                <path class="cls-1" d="M340.32,84.66,453.7,47.36s27.71-7,31.75-5,22.17,38.29,22.17,42.33-3,17.54-7.05,18.64c-2.91.8-6.67.14-8.56-5.27-1.77-5-8.57-39.73-15.62-39.41s-63.49,20-63.49,20-16.63,8.07-23.68,14.12-40.31,14.11-40.31,14.11-12.09-9.58-8.56-22.18Z"/>
+                <path class="cls-2" d="M348.52,85.22S476.59,41.15,483.58,45.16c0,0-22.79,3.12-52.29,14.88s-82.77,27.58-82.77,27.58Z"/>
+                <path class="cls-2" d="M478.78,57.62A7.42,7.42,0,0,1,485,61.94c2.15,4.32,12.24,30.94,12.24,30.94s1,6.24,6.47-3.35c0,0-3.85,12-6.71,8.5s-12.24-33-12.24-33-3.59-8.44-6-7.44Z"/>
+              </g>
+              <g id="monture">
+                <path class="cls-1" d="M353.5,86.11c-.3-4.27-12-6.54-15.92-8s-19.66,2.46-19.66,2.46c-15.24-3.93-68.31-11.31-98.78-11.31S178.35,83.49,174.91,83s-21.63-1-29.49-2.45S139,62.85,96.27,47.39,10.75,31.84,10.75,31.84C-6,37.67,2.29,55,2.29,55l2.56,7.95c5.41,2.54,3.94,13.18,5.9,28.9s9.34,35.88,17.7,48.17,39.81,26,55.53,26.53,29.49-2.45,39.81-19.17,21.14-46.2,21.14-46.2l12.77,2a11.39,11.39,0,0,1,6.7,3.87c3.06,3.48,5.55,10,9.52,21.68,9.47,27.67,31.46,49.15,31.46,49.15s7,9.3,41.87,15.85a115.29,115.29,0,0,0,53.48-3.08c22.19-9,27.08-56.3,27.08-56.3s2.29-16.66,9.78-20.85c9.23-5.19,10.36-5.56,15.92-6.66,4.52-.89.3-16.45,0-20.72Zm-244,63.25c-11.79,6.39-40.29,8.84-58-4.91s-26-37.84-28.5-66.34,8.89-31.6,8.89-31.6,18.63-.84,42.71,5.05S125.27,74.16,125.77,85s-4.42,58-16.21,64.38Zm193.14,30.47c-11.31,5.41-26.89,5.9-40,4.91s-47-2-59.29-39.32c0,0-3.44-17.7-6.39-21.63s-11.79-18.13-11.79-23.08c0-10.31,8.95-16.24,8.95-16.24a48.76,48.76,0,0,1,23.48-6.39c13.27,0,81.08,3.45,90.43,16.22s8.84,27.52,10.31,39.32-4.42,40.79-15.72,46.2Z"/>
+              </g>
+              <g id="verres" class="fill-[#E8F4F8] opacity-75">
+                <path class="cls-3" d="M16.65,63.64c-1.1,7.58.5,46.85,14.33,69.27s46.38,26.73,51.8,26.68S106,160.87,113.42,148c6.23-10.75,16.5-54.45,11.43-66.43C117,63,74.25,51.47,74.25,51.47S40.63,44.63,31.9,45.89c0,0-12.48-1.21-15.24,17.74Z"/>
+                <path class="cls-4" d="M16.25,63.64c-1.1,7.58.5,46.85,14.32,69.27S77,159.64,82.38,159.59,105.56,160.87,113,148c6.23-10.75,16.49-54.45,11.42-66.43C116.6,63,73.85,51.47,73.85,51.47S40.23,44.63,31.5,45.89c0,0-12.49-1.21-15.24,17.74Z"/>
+                <path class="cls-3" d="M180.7,100.8s-1.37-12,24.5-20.9c14.73-5.09,75.71,4,75.71,4S304.82,89,308.1,94.31,320,115.9,318.48,141.86c-1.43,25.31-9.15,33.56-15.79,38,0,0-8.89,6.17-26.72,7.42-33.37,2.36-46.35-1.43-57.84-9.68-37.42-26.87-37.42-76.76-37.42-76.76Z"/>
+                <path class="cls-4" d="M180.7,100.8s-1.37-12,24.5-20.9c14.73-5.09,75.71,4,75.71,4S304.82,89,308.1,94.31,320,115.9,318.48,141.86c-1.43,25.31-9.15,33.56-15.79,38,0,0-8.89,6.17-26.72,7.42-33.37,2.36-46.35-1.43-57.84-9.68-37.42-26.87-37.42-76.76-37.42-76.76Z"/>
+              </g>
+            </g>
+          </g>
+        </svg>`;
+
+    function refreshSvgRefs() {
+        // utile si on veut réinitialiser des listeners ou relire le svg courant
+        // (ici on garde la possibilité d'étendre — pour l'instant on ne rattache rien)
+        // ex: const svgEl = document.querySelector('#svg-output svg')
+    }
+
+    // Détecte si le prompt demande explicitement une modification des verres
+    function wantsVerres(promptText) {
+        if (!promptText || typeof promptText !== 'string') return false;
+        const p = promptText.toLowerCase();
+        // mots français et anglais courants pour verres / lentilles
+        const keywords = ['verre', 'verres', 'lentille', 'lentilles', 'lens', 'lenses'];
+        for (const k of keywords) if (p.indexOf(k) !== -1) return true;
+        // ou s'il y a un code hex explicitement fourni (indique souvent une demande de couleur)
+        if (/#[0-9a-f]{3,6}/i.test(promptText)) return true;
+        return false;
+    }
+
+    async function generateSVG(messages) {
+        const res = await fetch("/js/generateSVG", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messages }),
+        });
+
+        if (!res.ok) throw new Error("Erreur serveur");
+
+        const data = await res.json();
+        return data.svg;
+    }
+
+    const promptElement = document.getElementById("user-prompt");
+    const svgContainer = document.getElementById("svg-container");
+    const svgOutput = document.getElementById("svg-output");
+    const codeBlock = document.getElementById("svg-code");
+    const generateButton = document.getElementById("generate-button");
+    const editButton = document.getElementById("edit-button");
+    const nameInput = document.getElementById("svg-name");
+    const saveButton = document.getElementById("save-button");
+
+    async function handleSubmit() {
+        const prompt = promptElement?.value.trim();
+        if (!prompt) {
+            alert("Veuillez entrer un prompt SVG.");
+            return;
+        }
+
+        // récupérer le SVG modèle courant (celui que l'IA doit modifier)
+        function getCurrentSvgString() {
+            const out = document.getElementById('svg-output')
+            const container = document.getElementById('svg-container')
+            try {
+                // préférence : élément <svg> si présent
+                const svgEl = out?.querySelector && out.querySelector('svg')
+                if (svgEl && svgEl.outerHTML) return svgEl.outerHTML
+                // sinon regarder innerHTML (peut contenir le svg)
+                if (out && out.innerHTML && out.innerHTML.indexOf('<svg') !== -1) return out.innerHTML
+                // sinon regarder textContent
+                if (out && out.textContent && out.textContent.indexOf('<svg') !== -1) return out.textContent
+                // fallback : vérifier le container
+                const svgInContainer = container?.querySelector && container.querySelector('svg')
+                if (svgInContainer && svgInContainer.outerHTML) return svgInContainer.outerHTML
+            } catch (e) {
+                // noop
+            }
+            return ''
+        }
+
+        const baseSvg = getCurrentSvgString();
+        const lastAssistant = (promptList && promptList.slice().reverse().find(m => m.role === 'assistant')) || null;
+        const lastSvg = lastAssistant && (lastAssistant.content || '');
+        // choisir le SVG à envoyer : DOM -> historique -> BASE_SVG
+        const usedBaseSvg = (baseSvg && baseSvg.indexOf('<svg') !== -1)
+            ? baseSvg
+            : (lastSvg && lastSvg.indexOf('<svg') !== -1)
+                ? lastSvg
+                : BASE_SVG;
+
+        // déterminer si l'utilisateur a explicitement demandé une modification des verres
+        const allowVerres = wantsVerres(prompt);
+        const verresConstraint = allowVerres
+            ? 'Si l\'utilisateur demande explicitement une modification des verres, vous pouvez modifier le groupe id="verres" en changeant ses attributs (fill, stroke, opacity).'
+            : 'NE PAS recolorer ni modifier le groupe avec id="verres".';
+
+        // construire le message envoyé au endpoint (le endpoint ajoute son propre systemMessage)
+        const userMessageContent = `Base SVG:\n${usedBaseSvg}\n\nInstruction:\n${prompt}\n\nContraintes strictes:\n1) Ne modifier que le SVG fourni. Ne PAS ajouter ni supprimer d'éléments structurels, ni modifier les chemins d'ID.\n2) Conserver tous les ids existants (par ex. #monture, #branches, #verres).\n3) ${verresConstraint}\n4) Si l'utilisateur demande une couleur (nom ou hex), appliquez-la précisément :\n   - pour la monture (#monture) : modifier les attributs 'fill' des <path> contenus; si des contours existent utilisez 'stroke' aussi.\n   - pour les branches (#branches) : modifier 'fill' et/ou 'stroke' selon les éléments (paths/lines).\n   - utilisez le code hex fourni si présent; sinon mappez le nom de couleur au standard CSS.\n5) Renvoyer UNIQUEMENT le bloc <svg>...</svg> (aucun texte, explication ou balise wrapper).`;
+
+        const messages = [ { role: 'user', content: userMessageContent } ];
+
+        promptList = messages.slice();
+        svgContainer.innerHTML = `<span class="loading loading-ring loading-xl"></span>`;
+        generateButton.disabled = true;
+        editButton.disabled = true;
+
+        try {
+            const aiResponse = await generateSVG(messages);
+            // aiResponse est attendu comme un objet message { content: '<svg...'</svg>' }
+
+            const raw = (aiResponse && (aiResponse.content || aiResponse)) || '';
+            const svgCode = (typeof raw === 'string' ? raw : (raw.content || ''))?.match(/<svg[\s\S]*?<\/svg>/i)?.[0] || '';
+
+            // si pas de svg renvoyé, on récupère le dernier assistant dans l'historique
+            let finalSvg = svgCode || ((promptList.slice().reverse().find(m => m.role === 'assistant') || {}).content || '')
+
+            // Retry once if AI returned exactly the base SVG (no modification)
+            try {
+                const cleanedBase = (baseSvg || '').trim();
+                const cleanedReturned = (finalSvg || '').trim();
+                if (cleanedBase && cleanedReturned && cleanedBase === cleanedReturned) {
+                    console.warn('IA renvoyé identique au modèle de base — tentative de relance unique avec instructions renforcées');
+                    const retryReminder = allowVerres ? `RAPPEL: L'utilisateur a demandé une modification des verres — vous êtes autorisé à modifier le groupe id="verres" (fill/stroke/opacity) si nécessaire.` : `RAPPEL: NE PAS toucher #verres.`;
+                    const retryUser = {
+                        role: 'user',
+                        content: `Le SVG renvoyé est identique au modèle envoyé. Appliquez strictement la modification suivante:\n${prompt}\n${retryReminder} Si c'est une couleur, modifiez 'fill' et/ou 'stroke' sur les éléments concernés. Renvoyer uniquement le bloc <svg>...</svg>.`
+                    };
+                    const retryMessages = messages.concat([{ role: 'assistant', content: cleanedReturned }, retryUser]);
+                    const retryResponse = await generateSVG(retryMessages);
+                    const retryRaw = (retryResponse && (retryResponse.content || retryResponse)) || '';
+                    const retrySvgCode = (typeof retryRaw === 'string' ? retryRaw : (retryRaw.content || ''))?.match(/<svg[\s\S]*?<\/svg>/i)?.[0] || '';
+                    if (retrySvgCode) finalSvg = retrySvgCode;
+                }
+            } catch (e) {
+                console.error('Erreur lors du retry:', e);
+            }
+
+            promptList.push({ role: 'assistant', content: finalSvg });
+
+            if (finalSvg) {
+                if (svgOutput) svgOutput.innerHTML = finalSvg;
+                if (svgContainer) svgContainer.innerHTML = finalSvg;
+                if (codeBlock) codeBlock.textContent = finalSvg;
+            } else {
+                svgContainer.innerHTML = `<p class="text-error">Aucun SVG reçu de l'IA</p>`
+            }
+
+            // rafraîchir références si besoin
+            refreshSvgRefs();
+
+        } catch (error) {
+            console.error("Erreur SVG:", error);
+            svgContainer.innerHTML = `<p class="text-error">Erreur de génération du SVG</p>`;
+        } finally {
+            generateButton.disabled = false;
+            editButton.disabled = false;
+        }
+    }
+
+    async function handleEdit() {
+        const prompt = promptElement?.value.trim();
+        if (!prompt) {
+            alert("Veuillez entrer une modification.");
+            return;
+        }
+
+        // inclure le SVG de base courant pour que l'IA édite le même modèle
+        function getCurrentSvgStringLocal() {
+            const out = document.getElementById('svg-output')
+            const container = document.getElementById('svg-container')
+            try {
+                const svgEl = out?.querySelector && out.querySelector('svg')
+                if (svgEl && svgEl.outerHTML) return svgEl.outerHTML
+                if (out && out.innerHTML && out.innerHTML.indexOf('<svg') !== -1) return out.innerHTML
+                if (out && out.textContent && out.textContent.indexOf('<svg') !== -1) return out.textContent
+                const svgInContainer = container?.querySelector && container.querySelector('svg')
+                if (svgInContainer && svgInContainer.outerHTML) return svgInContainer.outerHTML
+            } catch (e) {}
+            return ''
+        }
+
+        const baseSvgLocal = getCurrentSvgStringLocal();
+        const lastAssistant = (promptList && promptList.slice().reverse().find(m => m.role === 'assistant')) || null;
+        const lastSvg = lastAssistant && (lastAssistant.content || '');
+        const usedBaseSvgLocal = (baseSvgLocal && baseSvgLocal.indexOf('<svg') !== -1)
+            ? baseSvgLocal
+            : (lastSvg && lastSvg.indexOf('<svg') !== -1)
+                ? lastSvg
+                : BASE_SVG;
+
+            const allowVerresLocal = wantsVerres(prompt);
+            const verresConstraintLocal = allowVerresLocal
+                ? 'Si l\'utilisateur demande explicitement une modification des verres, vous pouvez modifier le groupe id="verres" (fill, stroke, opacity).' 
+                : 'Ne toucher en aucun cas le groupe ayant id="verres".';
+
+            const userMessageContent = `Base SVG:\n${usedBaseSvgLocal}\n\nModification demandée:\n${prompt}\n\nContraintes strictes:\n1) ${verresConstraintLocal}\n2) Préserver les ids existants et la structure du SVG.\n3) Pour les changements de couleur : appliquez la couleur demandée sur #monture ou #branches en réglant 'fill'/'stroke' directement sur les éléments existants; utilisez hex si fourni.\n4) Ne pas réorganiser, fusionner ou remplacer des groupes entiers — modifiez seulement des attributs.\n5) Renvoyer uniquement le bloc <svg>...</svg.`;
+
+        const messages = promptList.concat([{ role: 'user', content: userMessageContent }]);
+
+        svgContainer.innerHTML = `<span class="loading loading-ring loading-xl"></span>`;
+        generateButton.disabled = true;
+        editButton.disabled = true;
+
+        try {
+            const aiResponse = await generateSVG(messages);
+
+            const raw = (aiResponse && (aiResponse.content || aiResponse)) || '';
+            const svgCode = (typeof raw === 'string' ? raw : (raw.content || ''))?.match(/<svg[\s\S]*?<\/svg>/i)?.[0] || '';
+
+            let finalSvg = svgCode || ((promptList.slice().reverse().find(m => m.role === 'assistant') || {}).content || '')
+
+            // Retry once if AI returned exactly the base used for edit
+            try {
+                const cleanedBaseLocal = (baseSvgLocal || '').trim();
+                const cleanedReturnedLocal = (finalSvg || '').trim();
+                if (cleanedBaseLocal && cleanedReturnedLocal && cleanedBaseLocal === cleanedReturnedLocal) {
+                    console.warn('IA renvoyé identique au modèle local — tentative de relance unique avec instructions renforcées (edit)');
+                    const retryReminderLocal = allowVerresLocal ? `RAPPEL: L'utilisateur a demandé une modification des verres — vous êtes autorisé à modifier id="verres" (fill/stroke/opacity) si nécessaire.` : `NE PAS toucher #verres.`;
+                    const retryUser = {
+                        role: 'user',
+                        content: `Le SVG renvoyé est identique au modèle. Appliquez strictement la modification demandée:\n${prompt}\n${retryReminderLocal} Modifiez uniquement les attributs (fill/stroke) sur les éléments concernés. Renvoyer uniquement le bloc <svg>...</svg>.`
+                    };
+                    const retryMessages = messages.concat([{ role: 'assistant', content: cleanedReturnedLocal }, retryUser]);
+                    const retryResponse = await generateSVG(retryMessages);
+                    const retryRaw = (retryResponse && (retryResponse.content || retryResponse)) || '';
+                    const retrySvgCode = (typeof retryRaw === 'string' ? retryRaw : (retryRaw.content || ''))?.match(/<svg[\s\S]*?<\/svg>/i)?.[0] || '';
+                    if (retrySvgCode) finalSvg = retrySvgCode;
+                }
+            } catch (e) {
+                console.error('Erreur lors du retry edit:', e);
+            }
+
+            promptList.push({ role: 'user', content: prompt });
+            promptList.push({ role: 'assistant', content: finalSvg });
+
+            if (finalSvg) {
+                if (svgOutput) svgOutput.innerHTML = finalSvg;
+                if (svgContainer) svgContainer.innerHTML = finalSvg;
+                if (codeBlock) codeBlock.textContent = finalSvg;
+            } else {
+                svgContainer.innerHTML = `<p class="text-error">Aucun SVG reçu de l'IA</p>`
+            }
+
+            refreshSvgRefs();
+        } catch (error) {
+            console.error("Erreur SVG:", error);
+            svgContainer.innerHTML = `<p class="text-error">Erreur de modification du SVG</p>`;
+        } finally {
+            generateButton.disabled = false;
+            editButton.disabled = false;
+            console.log("Historique des prompts :", promptList);
+        }
+    }
+
+    async function saveSVG() {
+        const nom = nameInput?.value.trim();
+        const svgCode = codeBlock?.textContent.trim();
+
+        if (!nom || !svgCode) {
+            alert(
+                "Veuillez entrer un nom et générer un SVG avant d’enregistrer.",
+            );
+            return;
+        }
+
+        try {
+            const res = await fetch("/js/saveSVG", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nom, code_svg: svgCode }),
+            });
+
+            if (!res.ok) throw new Error("Erreur lors de l’enregistrement");
+
+            alert("✅ SVG enregistré avec succès !");
+            nameInput.value = "";
+        } catch (err) {
+            console.error(err);
+            alert("❌ Échec de l’enregistrement du SVG.");
+        }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+        if (generateButton)
+            generateButton.addEventListener("click", handleSubmit);
+        if (editButton) editButton.addEventListener("click", handleEdit);
+        if (saveButton) saveButton.addEventListener("click", saveSVG);
+    });
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    saveButton.addEventListener("click", async () => {
+        const name = prompt("Enter a name for the SVG:");
+        const svgOutput = document.getElementById("svg-output")?.textContent;
+        console.log("Saving SVG: ", JSON.stringify(svgOutput));
+
+        const params: Collection.Svg = {
+            nom: name,
+            code_svg: svgOutput || "<svg></svg>",
+            chat_history: JSON.stringify(promptList),
+            user: user.id,
+        };
+        await saveSVG(params);
+    });
+</script>
+</Layout>
