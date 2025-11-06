@@ -172,69 +172,19 @@ import Logo from "../assets/TaVueLogo.svg";
     </div>
   </div>
 
-  <!-- Script: tabs + PocketBase auth handlers -->
-  <script type="module">
-  // Import dynamique du client PocketBase (plus fiable côté client)
-  const { pb } = await import('/lib/pb.js');
-
+  <!-- Script: tabs + auth handlers (server-side via endpoints using src/utils/pb.ts) -->
+  <script>
+    // @ts-nocheck
+    // Elements
     const tabLogin = document.getElementById("tab-login");
     const tabRegister = document.getElementById("tab-register");
     const loginForm = document.getElementById("login-form");
     const registerForm = document.getElementById("register-form");
-
-    // Tabs (guarded)
-    if (tabLogin && tabRegister && loginForm && registerForm) {
-  const msgEl = document.getElementById('login-msg');
-  const googleBtn = document.getElementById('google-login');
-
-    // Registration flow
+    const loginMsgEl = document.getElementById('login-msg');
     const registerMsgEl = document.getElementById('register-msg');
 
-    // Helper pour formater proprement les valeurs de validation (arrays, objets, etc.)
-    const formatValidationValue = (v) => {
-      if (Array.isArray(v)) return v.join(', ');
-      if (v && typeof v === 'object') {
-        if (typeof v.message === 'string') return v.message;
-        try {
-          return Object.entries(v)
-            .map(([k, val]) => `${k}: ${Array.isArray(val) ? val.join(', ') : (val && typeof val === 'object' ? JSON.stringify(val) : String(val))}`)
-            .join(' — ');
-        } catch (e) {
-          return JSON.stringify(v);
-        }
-      }
-      return String(v);
-    };
-    if (registerForm) {
-      // Simple registration handler as provided by the user
-      registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (registerMsgEl) registerMsgEl.textContent = '';
-
-        const email = registerForm.email.value;
-        const password = registerForm.password.value;
-        const passwordConfirm = registerForm.passwordConfirm.value;
-
-        try {
-          // création utilisateur
-          await pb.collection('users').create({
-            email,
-            password,
-            passwordConfirm
-          });
-          // envoi email de vérification (non-blocking)
-          try { await pb.collection('users').requestVerification(email); } catch (e) { console.warn('requestVerification failed', e); }
-
-          if (registerMsgEl) registerMsgEl.textContent = 'Inscription réussie, vérifiez vos emails';
-          // also set generic msg element if present
-          const msg = document.getElementById('msg'); if (msg) msg.textContent = 'Inscription réussie, vérifiez vos emails';
-        } catch (err) {
-          console.error(err);
-          if (registerMsgEl) registerMsgEl.textContent = 'Échec de l\'inscription';
-          const msg = document.getElementById('msg'); if (msg) msg.textContent = 'Échec de l\'inscription';
-        }
-      });
-    }
+    // Tabs
+    if (tabLogin && tabRegister && loginForm && registerForm) {
       tabLogin.addEventListener("click", () => {
         tabLogin.classList.add("bg-base-100");
         tabRegister.classList.remove("bg-base-100");
@@ -254,57 +204,106 @@ import Logo from "../assets/TaVueLogo.svg";
       });
     }
 
-  // Login flow
-  const msgEl = document.getElementById('login-msg');
-  const googleBtn = document.getElementById('google-login');
+    // Helper to show server error details when available
+    const showError = (el, payload) => {
+      if (!el) return;
+      try {
+        if (!payload) { el.textContent = 'Erreur inconnue'; return; }
+        if (typeof payload === 'string') { el.textContent = payload; return; }
+        if (payload?.error) {
+          // PocketBase often returns structured error objects
+          if (typeof payload.error === 'string') return void (el.textContent = payload.error);
+          if (payload.error?.message) return void (el.textContent = payload.error.message);
+          // If validation details object
+          if (typeof payload.error === 'object') return void (el.textContent = Object.entries(payload.error).map(([k,v]) => `${k}: ${Array.isArray(v)?v.join(', '):JSON.stringify(v)}`).join(' — '));
+        }
+        el.textContent = JSON.stringify(payload);
+      } catch (e) {
+        el.textContent = 'Erreur lors de l\'analyse du message d\'erreur';
+      }
+    };
 
+    // Login -> POST to server endpoint
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!msgEl) return;
-        msgEl.textContent = '';
-        const emailInput = document.getElementById('login-email');
-        const passInput = document.getElementById('login-password');
-        if (!emailInput || !passInput) return;
-
-        const email = emailInput.value.trim();
-        const password = passInput.value;
+        if (loginMsgEl) loginMsgEl.textContent = '';
+  const email = document.getElementById('login-email')?.['value']?.trim();
+  const password = document.getElementById('login-password')?.['value'];
+        if (!email || !password) {
+          if (loginMsgEl) loginMsgEl.textContent = 'Email et mot de passe requis.';
+          return;
+        }
 
         try {
-          await pb.collection('users').authWithPassword(email, password);
+          const resp = await fetch('/js/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
 
-          // Vérifier le flag verified si présent
-          const verified = pb.authStore.model?.verified;
-          if (verified === false) {
-            msgEl.textContent = 'Veuillez vérifier votre email avant de continuer.';
+          const data = await resp.json().catch(() => null);
+          if (!resp.ok) {
+            showError(loginMsgEl, data ?? (await resp.text()));
             return;
           }
 
-          // Redirection après connexion
+          // Store token in localStorage so client can use it for subsequent requests if needed
+          if (data?.token) localStorage.setItem('pb_auth', data.token);
+          // Redirect to configurator on success
           window.location.href = '/configurateur';
         } catch (err) {
-          console.error(err);
-          msgEl.textContent = 'Échec de connexion — vérifiez vos identifiants.';
+          console.error('Network/login error:', err);
+          if (loginMsgEl) loginMsgEl.textContent = 'Erreur réseau lors de la connexion: ' + (err?.message || String(err));
         }
       });
     }
 
-    // OAuth buttons
-    if (googleBtn) {
-      googleBtn.addEventListener('click', async () => {
-        if (msgEl) msgEl.textContent = '';
+    // Registration -> POST to server endpoint
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (registerMsgEl) registerMsgEl.textContent = '';
+
+  const first = document.getElementById('register-first')?.['value'] || '';
+  const last = document.getElementById('register-last')?.['value'] || '';
+  const email = document.getElementById('register-email')?.['value']?.trim();
+  const password = document.getElementById('register-password')?.['value'];
+  const passwordConfirm = document.getElementById('register-password-confirm')?.['value'];
+
+        if (!email || !password || !passwordConfirm) {
+          if (registerMsgEl) registerMsgEl.textContent = 'Veuillez remplir tous les champs requis.';
+          return;
+        }
+
         try {
-          // This will redirect to PocketBase OAuth flow
-          await pb.collection('users').authWithOAuth2({ provider: 'google' });
-          // On success PocketBase will redirect back; just in case:
-          window.location.href = '/configurateur';
+          const resp = await fetch('/js/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ first, last, email, password, passwordConfirm })
+          });
+
+          const data = await resp.json().catch(() => null);
+          if (!resp.ok) {
+            showError(registerMsgEl, data ?? (await resp.text()));
+            return;
+          }
+
+          if (registerMsgEl) registerMsgEl.textContent = 'Inscription réussie, vérifiez votre email';
         } catch (err) {
-          console.error(err);
-          if (msgEl) msgEl.textContent = 'Échec de connexion Google';
+          console.error('Network/register error:', err);
+          if (registerMsgEl) registerMsgEl.textContent = 'Erreur réseau lors de l\'inscription: ' + (err?.message || String(err));
         }
       });
     }
-    
+
+    // OAuth / Google button: fallback message (requires server-side OAuth wiring)
+    const googleBtn = document.getElementById('google-login');
+    if (googleBtn) {
+      googleBtn.addEventListener('click', () => {
+        if (loginMsgEl) loginMsgEl.textContent = 'Connexion OAuth non configurée côté client. Utilisez le flux serveur.';
+      });
+    }
   </script>
 </Layout>
 
