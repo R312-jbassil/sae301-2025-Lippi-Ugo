@@ -7,10 +7,11 @@ export async function POST({ request }) {
       return new Response(JSON.stringify({ ok: false, error: 'Champs manquants' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // Create user via server-side PocketBase client
-    const data = { email, password, passwordConfirm };
-    if (first) data.first = first;
-    if (last) data.last = last;
+  // Create user via server-side PocketBase client
+  // Map client `first`/`last` to PocketBase `prenom`/`nom` fields
+  const data = { email, password, passwordConfirm };
+  if (first) data.prenom = first;
+  if (last) data.nom = last;
 
     const record = await pb.collection('users').create(data);
 

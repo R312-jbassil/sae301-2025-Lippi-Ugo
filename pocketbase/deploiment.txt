@@ -1,4 +1,0 @@
-Compte admin pocketbase
-
-Identifiant : ugo.lippi@edu.univ-fcomte.fr
-Mot de passe : MMI20252026

@@ -1,0 +1,10 @@
+URL Application Web :
+https://sae301.ugo-lippi.fr/
+
+Compte admin pocketbase :
+
+Identifiant : ugo.lippi@edu.univ-fcomte.fr
+Mot de passe : MMI20252026
+
+Lien dépot github :
+https://github.com/R312-jbassil/sae301-2025-Lippi-Ugo
